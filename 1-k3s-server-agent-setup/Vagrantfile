@@ -1,0 +1,41 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+$home = "/home/vagrant"
+
+Vagrant.configure('2') do |config|
+  config.vm.box = 'bento/ubuntu-24.04'
+  config.vm.box_check_update = false
+
+  config.vm.provider 'vmware_fusion' do |vmware|
+    vmware.cpus = 1
+    vmware.memory = 512
+  end
+
+  config.vm.provision 'file', source: '~/.ssh/id_ed25519.pub', destination: "#{$home}/tmp/host_key.pub"
+
+  config.vm.provision 'shell', inline: <<-END
+    cat #{$home}/tmp/host_key.pub >> #{$home}/.ssh/authorized_keys
+    rm -rf #{$home}/tmp
+  END
+
+  config.vm.define 'server' do |server|
+    server.vm.hostname = 'osmanS'
+    server.vm.network 'private_network', ip: '192.168.56.110'
+    server.vm.provision 'shell', inline: <<-END
+      curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--flannel-iface=eth1" sh -
+      sudo cp /var/lib/rancher/k3s/server/node-token /vagrant
+      sudo apt install net-tools > /dev/null 2>&1
+    END
+  end
+
+  config.vm.define 'serverWorker' do |serverWorker|
+    serverWorker.vm.hostname = 'osmanSW'
+    serverWorker.vm.network 'private_network', ip: '192.168.56.111'
+    serverWorker.vm.provision 'shell', inline: <<-END
+      curl -sfL https://get.k3s.io | K3S_URL=https://192.168.56.110:6443 K3S_TOKEN=$(cat /vagrant/node-token) INSTALL_K3S_EXEC="--flannel-iface=eth1" sh -
+      rm /vagrant/node-token
+      sudo apt install net-tools > /dev/null 2>&1
+    END
+  end
+end
