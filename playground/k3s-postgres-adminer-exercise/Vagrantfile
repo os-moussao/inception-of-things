@@ -1,0 +1,17 @@
+$home = "/home/vagrant"
+
+Vagrant.configure('2') do |config|
+  config.vm.box = 'bento/ubuntu-24.04'
+  config.vm.box_check_update = false
+  config.vm.define 'master-machine'
+  config.vm.hostname = 'master-node'
+  config.vm.provider "vmware_fusion" do |vmware|
+    vmware.cpus = 2
+    vmware.memory = 2048
+  end
+  config.vm.network 'private_network', ip: '192.168.56.110'
+  config.vm.provision 'shell', inline: <<-END
+    curl -sfL https://get.k3s.io | K3S_KUBECONFIG_MODE=644 INSTALL_K3S_EXEC="--flannel-iface=eth1" sh -
+    sudo apt install net-tools > /dev/null 2>&1
+  END
+end
