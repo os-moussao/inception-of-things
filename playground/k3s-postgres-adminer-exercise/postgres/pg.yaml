@@ -15,7 +15,7 @@ spec:
         app: postgres-db
     spec:
       containers:
-        - name: postgres-db
+        - name: master-db
           image: postgres:12.20-alpine
           ports:
             - containerPort: 5432
