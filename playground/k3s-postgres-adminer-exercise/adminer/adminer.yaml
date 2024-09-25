@@ -16,15 +16,16 @@ spec:
     spec:
       containers:
         - name: adminer
-          image: adminer:latest
+          image: wodby/adminer
           ports:
-            - containerPort: 8080
+            - containerPort: 9000
           env:
-            - name: ADMINER_DEFAULT_SERVER
-              valueFrom:
-                configMapKeyRef:
-                  name: adminer-configmap
-                  key: ADMINER_DEFAULT_SERVER
+            - name: ADMINER_DEFAULT_DB_DRIVER
+              value: pgsql
+            - name: ADMINER_DEFAULT_DB_HOST
+              value: master-db
+            - name: ADMINER_DEFAULT_DB_NAME
+              value: dev_db
 ---
 # https://kubernetes.io/docs/concepts/services-networking/service/#services-in-kubernetes
 # https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
@@ -39,6 +40,6 @@ spec:
   type: LoadBalancer # accepts external requests by assigning the service an external ip address
   ports:
     - protocol: TCP
-      port: 8080
-      targetPort: 8080
+      port: 9000
+      targetPort: 9000
       nodePort: 30081 # (>30000,<32000) the port where the service external ip is bound to
