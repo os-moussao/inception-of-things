@@ -38,11 +38,12 @@ spec:
 ---
 apiVersion: v1
 kind: Service
-metadata: pg-service
+metadata:
+  name: pg-service
 spec:
   selector:
     app: postgres-db
   ports:
     - protocol: TCP
       port: 5432
-      pargetPort: 5432
+      targetPort: 5432
