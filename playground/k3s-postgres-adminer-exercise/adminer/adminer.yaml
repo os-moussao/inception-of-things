@@ -23,7 +23,7 @@ spec:
             - name: ADMINER_DEFAULT_DB_DRIVER
               value: pgsql
             - name: ADMINER_DEFAULT_DB_HOST
-              value: master-db
+              value: postgres service ip here
             - name: ADMINER_DEFAULT_DB_NAME
               value: dev_db
 ---
