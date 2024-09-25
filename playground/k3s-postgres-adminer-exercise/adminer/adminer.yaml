@@ -26,6 +26,9 @@ spec:
                   name: adminer-configmap
                   key: ADMINER_DEFAULT_SERVER
 ---
+# https://kubernetes.io/docs/concepts/services-networking/service/#services-in-kubernetes
+# https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+# https://kubernetes.io/docs/concepts/services-networking/service/#loadbalancer
 apiVersion: v1
 kind: Service
 metadata:
@@ -33,7 +36,9 @@ metadata:
 spec:
   selector:
     app: adminer
+  type: LoadBalancer # accepts external requests by assigning the service an external ip address
   ports:
     - protocol: TCP
       port: 8080
       targetPort: 8080
+      nodePort: 30081 # (>30000,<32000) the port where the service external ip is bound to
