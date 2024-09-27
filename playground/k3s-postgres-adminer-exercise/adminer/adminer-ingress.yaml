@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: adminer-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: adminer-dashboard.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: adminer-service
+                port:
+                  number: 9000

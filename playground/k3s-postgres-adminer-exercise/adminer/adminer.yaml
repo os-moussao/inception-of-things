@@ -37,9 +37,9 @@ metadata:
 spec:
   selector:
     app: adminer
-  type: LoadBalancer # accepts external requests by assigning the service an external ip address
+  # type: LoadBalancer # accepts external requests by assigning the service an external ip address
   ports:
     - protocol: TCP
       port: 9000
       targetPort: 9000
-      nodePort: 30081 # (>30000,<32000) the port where the service external ip is bound to
+      # nodePort: 30081 # (>30000,<32000) the port where the service external ip is bound to
