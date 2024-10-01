@@ -1,5 +1,7 @@
 const express = require('express');
-// const ejs = require('ejs');
+
+// this is for docker stop to exit immediately
+exitOn('SIGINT', 'SIGABRT', 'SIGTERM');
 
 const PORT = process.env.PORT ?? 3000;
 
@@ -18,10 +20,20 @@ app.use(express.static('public'));
 app.get('', (req, res) => {
   res.render('index', {
     message: process.env.APP_MESSAGE ?? 'Hello World !',
-    hostname: process.env.HOSTNAME ?? 'K8S Pod',
+    pod: process.env.HOSTNAME ?? 'K8S Pod Name',
+    node: process.env.NODE_INFO ?? 'K8S Node Info',
   });
 });
 
 app.listen(PORT, () => {
   console.log(`Application running on port ${PORT}...`);
 });
+
+function exitOn(...signals) {
+  signals.forEach((signal) => {
+    process.on(signal, () => {
+      console.log('process exists on', signal);
+      process.exit(1);
+    });
+  });
+}
