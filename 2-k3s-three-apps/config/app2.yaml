@@ -1,0 +1,40 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: app2-deployment
+  labels:
+    app: app2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app2
+  template:
+    metadata:
+      labels:
+        app: app2
+    spec:
+      containers:
+        - name: hello-k8s-app2
+          image: osmoussao/hello-kubernetes:0.0.1
+          ports:
+            - containerPort: 3000
+          env:
+            - name: APP_MESSAGE
+              value: "Hello from App2."
+            - name: NODE_INFO
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: app2-service
+spec:
+  selector:
+    app: app2
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
