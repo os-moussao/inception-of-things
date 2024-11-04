@@ -32,6 +32,11 @@ curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 k3d --version
 
 echo '--------------------- 5. Creating a cluster. ---------------------'
-k3d cluster create mycluster
+k3d cluster create mycluster --port 8080:8080@loadbalancer --port 8443:443@loadbalancer
 mkdir /home/vagrant/.kube && k3d kubeconfig get mycluster > /home/vagrant/.kube/config 
 kubectl get node
+
+echo '--------------------- 5. Installing ArgoCD ---------------------'
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
