@@ -2,21 +2,7 @@ sudo apt install net-tools > /dev/null 2>&1
 
 echo '--------------------- 1. Installing Docker. ---------------------'
 curl -fsSL https://get.docker.com | sh
-
-echo '--------------------- 2. Configuring Docker. ---------------------'
-
-echo '------------------------- 2.1 Create the docker group. ---------------------'
-sudo groupadd docker
-groups
-
-echo '------------------------- 2.2 Add vagrant user to the docker group. ---------------------'
 sudo usermod -aG docker vagrant
-groups vagrant
-
-echo '------------------------- 2.3 Activate the changes to groups. ---------------------'
-newgrp docker
-
-echo '------------------------- 2.4 Configure Docker to start on boot. ---------------------'
 sudo systemctl enable docker.service
 sudo systemctl enable containerd.service
 
@@ -31,12 +17,22 @@ echo '--------------------- 4. Installing K3D. ---------------------'
 curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 k3d --version
 
-echo '--------------------- 5. Creating a cluster. ---------------------'
-k3d cluster create mycluster --port 8080:8080@loadbalancer --port 8443:443@loadbalancer
-mkdir /home/vagrant/.kube && k3d kubeconfig get mycluster > /home/vagrant/.kube/config 
-kubectl get node
-
-echo '--------------------- 5. Installing ArgoCD ---------------------'
+echo '--------------------- 5. Creating a cluster & Installing ArgoCD ---------------------'
+k3d cluster create dev-cluster
+mkdir /home/vagrant/.kube && k3d kubeconfig get dev-cluster > /home/vagrant/.kube/config 
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-# kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
+kubectl -n argocd rollout status deployment argocd-server
+
+echo '--------------------- 6.  Deploying argoCD APP ---------------------'
+kubectl apply -n argocd -f /vagrant/application.yaml
+
+
+echo '--------------------- 7.  Exposing Argocd Server  ---------------------'
+IP=$(hostname -I | awk '{print $1}')
+export ARGOCD_USER=admin
+export ARGOCD_PASSWORD=$(kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d)
+kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0 > /dev/null 2>&1 &
+echo "Server running on: $(hostname -I | awk '{print $1}'):8080"
+echo "USERNAME: $ARGOCD_USER"
+echo "PASSWORD: $ARGOCD_PASSWORD"
