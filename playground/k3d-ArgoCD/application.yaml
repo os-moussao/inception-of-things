@@ -6,12 +6,12 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/argoproj/argocd-example-apps.git
+    repoURL: https://github.com/os-moussao/inception-of-things.git
+    path: 2-k3s-three-apps/config
     targetRevision: HEAD
-    path: guestbook
   destination:
-    server: https://kubernetes.default.svc
-    namespace: guestbook
+    server: https://kubernetes.default.svc # the local cluster
+    namespace: dev
   syncPolicy:
     syncOptions:
       - CreateNamespace=true

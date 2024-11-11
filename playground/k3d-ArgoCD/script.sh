@@ -18,7 +18,7 @@ curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
 k3d --version
 
 echo '--------------------- 5. Creating a cluster & Installing ArgoCD ---------------------'
-k3d cluster create dev-cluster
+k3d cluster create dev-cluster --port 8888:80@loadbalancer
 mkdir /home/vagrant/.kube && k3d kubeconfig get dev-cluster > /home/vagrant/.kube/config 
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
@@ -36,3 +36,5 @@ kubectl port-forward svc/argocd-server -n argocd 8080:443 --address 0.0.0.0 > /d
 echo "Server running on: $(hostname -I | awk '{print $1}'):8080"
 echo "USERNAME: $ARGOCD_USER"
 echo "PASSWORD: $ARGOCD_PASSWORD"
+echo "USERNAME=$ARGOCD_USER" > /home/vagrant/argo-credentials.txt
+echo "PASSWORD=$ARGOCD_PASSWORD" >> /home/vagrant/argo-credentials.txt
